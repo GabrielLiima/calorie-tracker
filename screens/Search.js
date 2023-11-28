@@ -1,22 +1,36 @@
-import { FlatList, StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 import { useState } from "react";
 
+import axios from "axios";
+
 import Ionicons from "react-native-vector-icons/Ionicons";
-import CollapsedMeal from "../components/CollapsedMeal";
-import meals from "../data/dummy_data";
 import Menu from "../components/Menu";
 
 const Search = () => {
-  const [category, setCategory] = useState("Foods");
+  const [data, setData] = useState([]);
+  const [query, setQuery] = useState("");
 
-  const selectCategoryHandler = (category) => {
-    setCategory(category);
+  const inputHandler = (input) => {
+    setQuery(input);
   };
 
-  const renderMeals = (itemData) => {
-    const meal = itemData.item;
+  const fetchData = (query) => {
+    axios
+      .get(`http://192.168.173.114:3000/search/${query}`)
+      .then((response) => {
+        const data = response.data.results.map((result) => {
+          return { ...result, category: "Foods" };
+        });
 
-    return <CollapsedMeal {...meal} />;
+        setData(data);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const [text, setText] = useState("Search for Recipes...");
+
+  const onSelect = (selected) => {
+    setText(`Search for ${selected}...`);
   };
 
   return (
@@ -31,20 +45,21 @@ const Search = () => {
         />
         <TextInput
           style={styles.input}
-          placeholder="Search for a food..."
+          placeholder={text}
           cursorColor={"#cccccc"}
+          onChangeText={inputHandler}
+          value={query}
+          onSubmitEditing={fetchData.bind(this, query)}
         />
       </View>
-      <Menu
-        options={["Foods", "Recipes"]}
-        onSelect={selectCategoryHandler}
-      />
-      <FlatList
-        data={meals}
-        keyExtractor={(meal) => meal.id}
-        renderItem={renderMeals}
-        showsVerticalScrollIndicator={false}
-      />
+      {data != [] && (
+        <Menu
+          options={["Foods", "Recipes"]}
+          meals={data}
+          onSelect={onSelect}
+          collapsed
+        />
+      )}
     </View>
   );
 };

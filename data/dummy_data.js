@@ -9,6 +9,7 @@ const meals = [
     protein: 84,
     carbs: 95,
     fat: 72,
+    category: "Recipes"
   },
   {
     id: "m2",
@@ -20,6 +21,7 @@ const meals = [
     protein: 20,
     carbs: 110,
     fat: 50,
+    category: "Recipes"
   },
   {
     id: "m3",
@@ -31,6 +33,7 @@ const meals = [
     protein: 96,
     carbs: 40,
     fat: 12,
+    category: "Recipes"
   },
   {
     id: "m4",
@@ -42,6 +45,7 @@ const meals = [
     protein: 5,
     carbs: 50,
     fat: 35,
+    category: "Recipes"
   },
   {
     id: "m5",
@@ -53,6 +57,7 @@ const meals = [
     protein: 150,
     carbs: 65,
     fat: 45,
+    category: "Recipes"
   },
   {
     id: "m6",
@@ -64,6 +69,7 @@ const meals = [
     protein: 13,
     carbs: 50,
     fat: 32,
+    category: "Recipes"
   },
   {
     id: "m7",
@@ -75,6 +81,7 @@ const meals = [
     protein: 5,
     carbs: 35,
     fat: 25,
+    category: "Recipes"
   },
 ];
 

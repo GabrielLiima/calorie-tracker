@@ -1,50 +1,106 @@
-import { FavoritesContext } from "../context/store/favorites-context";
-import { useLayoutEffect, useContext } from "react";
 import { Image, StyleSheet, ScrollView, Text, View } from "react-native";
+import { useEffect, useState } from "react";
 
 import Ionicons from "react-native-vector-icons/Ionicons";
-import meals from "../data/dummy_data";
+import axios from "axios";
+
 import Bar from "../components/Bar";
 
 const MealDetails = ({ navigation, route }) => {
-  const meal = meals.find((meal) => meal.id === route.params.id);
-
-  const favoritesCtx = useContext(FavoritesContext);
-  const isFavorite = favoritesCtx.ids.includes(meal.id);
+  const [meal, setMeal] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [favorite, setFavorite] = useState(false);
 
   const onPressHandler = () => {
-    if (isFavorite) {
-      favoritesCtx.removeFavorite(meal.id);
+    if (favorite) {
+      setFavorite(false);
     } else {
-      favoritesCtx.addFavorite(meal.id);
+      setFavorite(true);
     }
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     navigation.setOptions({
-      headerTitle: meal.title,
       headerRight: () => (
         <Ionicons
-          name={isFavorite ? "heart" : "heart-outline"}
+          name={favorite ? "heart" : "heart-outline"}
           color={"#ff715e"}
           size={28}
           onPress={onPressHandler}
         />
       ),
     });
-  }, [navigation, meal, isFavorite, onPressHandler]);
+  }, [favorite]);
 
-  const proteinPercentage = ((meal.protein / meal.amount) * 100).toFixed(1);
-  const carbsPercentage = ((meal.carbs / meal.amount) * 100).toFixed(1);
-  const fatPercentage = ((meal.fat / meal.amount) * 100).toFixed(1);
+  useEffect(() => {
+    if (favorite) {
+      axios
+        .post(
+          `http://192.168.173.114:3000/favorites/add/${meal.id}/${meal.name}`
+        )
+        .catch((err) => console.log(err));
+    } else {
+      axios
+        .post(`http://192.168.173.114:3000/favorites/delete`, { id: meal.id })
+        .catch((err) => console.log(err));
+    }
+  }, [favorite, meal]);
+
+  useEffect(() => {
+    axios
+      .get(`http://192.168.173.114:3000/favorites/${route.params.id}`)
+      .then((response) => {
+        if (response.data.isFavorite) {
+          setFavorite(true);
+        }
+
+        return axios.get(
+          `http://192.168.173.114:3000/search/details/${route.params.id}`
+        );
+      })
+      .then((response) => {
+        setMeal(response.data);
+
+        navigation.setOptions({
+          headerTitle:
+            response.data.name.charAt(0).toUpperCase() +
+            response.data.name.slice(1),
+          headerRight: () => (
+            <Ionicons
+              name={favorite ? "heart" : "heart-outline"}
+              color={"#ff715e"}
+              size={28}
+              onPress={onPressHandler}
+            />
+          ),
+        });
+      })
+      .catch((err) => console.log(err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <View>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: meal.imageUrl }} style={styles.image} />
+      <Image
+        source={{
+          uri: `https://spoonacular.com/cdn/ingredients_500x500/${meal.image}`,
+        }}
+        style={styles.image}
+      />
       <ScrollView>
         <View style={styles.detailsContainer}>
           <View style={styles.textContainer}>
-            <Text style={styles.title}>{meal.title}</Text>
+            <Text style={styles.title}>
+              {meal.name.charAt(0).toUpperCase() + meal.name.slice(1)}
+            </Text>
             <Text style={styles.title}>{meal.amount}g</Text>
           </View>
           <View style={styles.textContainer}>
@@ -55,10 +111,12 @@ const MealDetails = ({ navigation, route }) => {
             style={[styles.textContainer, { marginTop: 20, marginBottom: 10 }]}
           >
             <Text style={styles.details}>Protein</Text>
-            <Text style={styles.details}>{proteinPercentage}%</Text>
+            <Text style={styles.details}>
+              {meal.nutrition.caloricBreakdown.percentProtein}%
+            </Text>
           </View>
           <Bar
-            percentage={`${proteinPercentage}%`}
+            percentage={`${meal.nutrition.caloricBreakdown.percentProtein}%`}
             color={"#63BA6A"}
             horizontal
           />
@@ -66,10 +124,12 @@ const MealDetails = ({ navigation, route }) => {
             style={[styles.textContainer, { marginBottom: 10, marginTop: 15 }]}
           >
             <Text style={styles.details}>Carbs</Text>
-            <Text style={styles.details}>{carbsPercentage}%</Text>
+            <Text style={styles.details}>
+              {meal.nutrition.caloricBreakdown.percentCarbs}%
+            </Text>
           </View>
           <Bar
-            percentage={`${carbsPercentage}%`}
+            percentage={`${meal.nutrition.caloricBreakdown.percentCarbs}%`}
             color={"#F7C442"}
             horizontal
           />
@@ -77,9 +137,15 @@ const MealDetails = ({ navigation, route }) => {
             style={[styles.textContainer, { marginBottom: 10, marginTop: 15 }]}
           >
             <Text style={styles.details}>Fat</Text>
-            <Text style={styles.details}>{fatPercentage}%</Text>
+            <Text style={styles.details}>
+              {meal.nutrition.caloricBreakdown.percentFat}%
+            </Text>
           </View>
-          <Bar percentage={`${fatPercentage}%`} color={"#A79EDE"} horizontal />
+          <Bar
+            percentage={`${meal.nutrition.caloricBreakdown.percentFat}%`}
+            color={"#A79EDE"}
+            horizontal
+          />
         </View>
       </ScrollView>
     </View>

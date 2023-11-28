@@ -1,31 +1,41 @@
-import { useContext } from "react";
-import { FavoritesContext } from "../context/store/favorites-context";
+import React, { useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
-import meals from "../data/dummy_data";
+import axios from "axios";
+
 import CollapsedMeal from "../components/CollapsedMeal";
 
 const Favorites = () => {
-  const favoritesCtx = useContext(FavoritesContext);
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState([]);
 
-  const favoriteMeals = meals.filter((meal) =>
-    favoritesCtx.ids.includes(meal.id)
+  useFocusEffect(
+    React.useCallback(() => {
+      axios
+        .get("http://192.168.173.114:3000/favorites")
+        .then((response) => {
+          setData(response.data.items);
+        })
+        .catch((err) => console.log(err))
+        .finally(() => {
+          setLoading(false);
+        });
+    }, [])
   );
+
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Favorites</Text>
-      {favoriteMeals.length == 0 ? (
-        <View style={styles.default}>
-          <Text style={styles.defaultText}>No favorite meals yet.</Text>
-        </View>
-      ) : (
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {favoriteMeals.map((meal) => (
-            <CollapsedMeal key={meal.id} {...meal} />
-          ))}
-        </ScrollView>
-      )}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {data.map((meal) => (
+          <CollapsedMeal key={meal.id} meal={meal} />
+        ))}
+      </ScrollView>
     </View>
   );
 };
@@ -48,7 +58,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   defaultText: {
-    fontSize: 16
+    fontSize: 16,
   },
 });
 

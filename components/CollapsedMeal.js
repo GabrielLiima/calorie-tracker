@@ -1,15 +1,15 @@
-import { useNavigation } from "@react-navigation/native";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { useContext, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import { MealsContext } from "../context/store/meals-context";
-import { Image, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-const CollapsedMeal = ({ id, title, imageUrl, calories, amount }) => {
+const CollapsedMeal = ({ meal }) => {
   const navigator = useNavigation();
 
   const onPressHandler = () => {
-    navigator.navigate("Details", { id: id });
+    navigator.navigate("Details", { id: meal.id });
   };
 
   const mealsCtx = useContext(MealsContext);
@@ -23,16 +23,9 @@ const CollapsedMeal = ({ id, title, imageUrl, calories, amount }) => {
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
-        <Image source={{ uri: imageUrl }} style={styles.image} />
-        <View>
-          <Text style={styles.title} numberOfLines={2}>
-            {title}
-          </Text>
-          <Text style={styles.details}>
-            <Ionicons name="flame" color="red" size={15} />
-            {`${calories} kcal · ${amount}g`}
-          </Text>
-        </View>
+        <Text style={styles.title}>
+          {meal.name.charAt(0).toUpperCase() + meal.name.slice(1)}
+        </Text>
         <View style={styles.buttons}>
           <View style={styles.buttonContainer}>
             <Pressable
@@ -67,7 +60,7 @@ const CollapsedMeal = ({ id, title, imageUrl, calories, amount }) => {
               <Pressable
                 android_ripple={{ color: "#ccc" }}
                 onPress={() => {
-                  mealsCtx.addMeal(id, "Breakfast");
+                  mealsCtx.addMeal(meal, "Breakfast");
                   toggleModal();
                 }}
               >
@@ -80,7 +73,7 @@ const CollapsedMeal = ({ id, title, imageUrl, calories, amount }) => {
               <Pressable
                 android_ripple={{ color: "#ccc" }}
                 onPress={() => {
-                  mealsCtx.addMeal(id, "Lunch");
+                  mealsCtx.addMeal(meal, "Lunch");
                   toggleModal();
                 }}
               >
@@ -93,7 +86,7 @@ const CollapsedMeal = ({ id, title, imageUrl, calories, amount }) => {
               <Pressable
                 android_ripple={{ color: "#ccc" }}
                 onPress={() => {
-                  mealsCtx.addMeal(id, "Dinner");
+                  mealsCtx.addMeal(meal, "Dinner");
                   toggleModal();
                 }}
               >
@@ -129,13 +122,9 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   innerContainer: {
+    alignItems: "center",
+    flex: 1,
     flexDirection: "row",
-  },
-  image: {
-    borderRadius: 10,
-    height: 50,
-    marginRight: 12,
-    width: 50,
   },
   title: {
     fontSize: 17,

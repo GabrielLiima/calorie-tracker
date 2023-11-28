@@ -1,12 +1,11 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { useState, useEffect } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
 
-const Menu = ({ options, onSelect }) => {
+import Meal from "./Meal";
+import CollapsedMeal from "./CollapsedMeal";
+
+const Menu = ({ options, meals, onSelect, collapsed }) => {
   const [selected, setSelected] = useState(options[0]);
-
-  useEffect(() => {
-    onSelect(selected);
-  }, []);
 
   const optionSelected = (option) => {
     return selected === option ? styles.selected : {};
@@ -18,23 +17,38 @@ const Menu = ({ options, onSelect }) => {
 
   let key = 1;
 
+  const filteredData = meals.filter((item) => item.category === selected);
+
   return (
-    <View style={styles.container}>
-      {options.map((option) => (
-        <Pressable
-          style={styles.option}
-          onPress={() => {
-            setSelected(option);
-            onSelect(option);
-          }}
-          key={key++}
-        >
-          <View style={optionSelected(option)}>
-            <Text style={[styles.text, textSelected(option)]}>{option}</Text>
-          </View>
-        </Pressable>
-      ))}
-    </View>
+    <>
+      <View style={styles.container}>
+        {options.map((option) => (
+          <Pressable
+            style={styles.option}
+            onPress={() => {
+              setSelected(option);
+              onSelect(option);
+            }}
+            key={key++}
+          >
+            <View style={optionSelected(option)}>
+              <Text style={[styles.text, textSelected(option)]}>{option}</Text>
+            </View>
+          </Pressable>
+        ))}
+      </View>
+      {collapsed ? (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {filteredData.map((item) => (
+            <CollapsedMeal meal={item} key={item.id + Math.random()} />
+          ))}
+        </ScrollView>
+      ) : (
+        filteredData.map((item) => (
+          <Meal {...item} key={item.id + Math.random()} />
+        ))
+      )}
+    </>
   );
 };
 
@@ -46,8 +60,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 2,
     flexDirection: "row",
-    marginBottom: 20,
-    marginTop: 20,
+    marginVertical: 20,
     overflow: "hidden",
   },
   selected: {

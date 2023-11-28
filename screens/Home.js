@@ -1,7 +1,6 @@
 import { StyleSheet, Pressable, Text, View, ScrollView } from "react-native";
-import { useState, useContext } from "react";
-import { useFocusEffect } from "@react-navigation/native";
 import { MealsContext } from "../context/store/meals-context";
+import { useContext } from "react";
 
 import * as React from "react";
 
@@ -9,39 +8,10 @@ import ProgressCircles from "../components/ProgressCircles";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Calendar from "../components/Calendar";
 import Menu from "../components/Menu";
-import Meal from "../components/Meal";
-import meals from "../data/dummy_data";
 
 const Home = ({ navigation }) => {
-  const [mealsList, setMealsList] = useState([]);
-
   const mealsCtx = useContext(MealsContext);
-
-  const selected = meals.find((meal) => meal.id === mealsCtx.ids.id);
-
-  if (selected) {
-    selected.category = mealsCtx.ids.meal;
-
-    setMealsList((current) => [...current, selected]);
-  }
-
-  mealsCtx.ids = [];
-
-  const [filteredMeals, setfilteredMeals] = useState([]);
-
-  const filterMeals = (category) => {
-    setfilteredMeals(mealsList.filter((meal) => meal.category == category));
-
-    console.log(filteredMeals);
-  };
-
-  useFocusEffect(
-    React.useCallback(() => {
-      filterMeals("Breakfast");
-
-      return () => {};
-    }, [])
-  );
+  const meals = mealsCtx.mealsList;
 
   return (
     <View style={styles.container}>
@@ -88,11 +58,9 @@ const Home = ({ navigation }) => {
         </View>
         <Menu
           options={["Breakfast", "Lunch", "Dinner"]}
-          onSelect={filterMeals}
+          meals={meals}
+          onSelect={() => {}}
         />
-        {filteredMeals.map((meal) => (
-          <Meal {...meal} key={meal.id} />
-        ))}
       </ScrollView>
     </View>
   );
