@@ -1,8 +1,9 @@
 import { StyleSheet, Pressable, Text, View, ScrollView } from "react-native";
-import { MealsContext } from "../context/store/meals-context";
-import { useContext } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useState } from "react";
 
-import * as React from "react";
+import React from "react";
+import axios from "axios";
 
 import ProgressCircles from "../components/ProgressCircles";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -10,8 +11,26 @@ import Calendar from "../components/Calendar";
 import Menu from "../components/Menu";
 
 const Home = ({ navigation }) => {
-  const mealsCtx = useContext(MealsContext);
-  const meals = mealsCtx.mealsList;
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      axios
+        .get("https://calorietrackerapi-d5wlvjoica-rj.a.run.app/meals")
+        .then((response) => {
+          setData(response.data.items);
+        })
+        .catch((err) => console.log(err))
+        .finally(() => {
+          setLoading(false);
+        });
+    }, [])
+  );
+
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
 
   return (
     <View style={styles.container}>
@@ -58,7 +77,7 @@ const Home = ({ navigation }) => {
         </View>
         <Menu
           options={["Breakfast", "Lunch", "Dinner"]}
-          meals={meals}
+          meals={data}
           onSelect={() => {}}
         />
       </ScrollView>

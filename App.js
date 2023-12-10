@@ -2,19 +2,16 @@ import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 
 import Routes from "./Routes";
-import FavoritesContextProvider from "./context/store/favorites-context";
-import MealsContextProvider from "./context/store/meals-context";
+import DateContextProvider from "./context/store/date-context";
 
 const App = () => {
   return (
     <>
-      <MealsContextProvider>
-        <FavoritesContextProvider>
-          <NavigationContainer>
-            <Routes />
-          </NavigationContainer>
-        </FavoritesContextProvider>
-      </MealsContextProvider>
+      <DateContextProvider>
+        <NavigationContainer>
+          <Routes />
+        </NavigationContainer>
+      </DateContextProvider>
       <StatusBar style="dark" backgroundColor="white" />
     </>
   );

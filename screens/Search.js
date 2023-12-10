@@ -16,7 +16,7 @@ const Search = () => {
 
   const fetchData = (query) => {
     axios
-      .get(`http://192.168.0.12:3000/search/${query}`)
+      .get(`https://calorietrackerapi-d5wlvjoica-rj.a.run.app/search/${query}`)
       .then((response) => {
         const data = response.data.results.map((result) => {
           return { ...result, category: "Foods" };

@@ -1,9 +1,9 @@
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { MealsContext } from "../context/store/meals-context";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 import Ionicons from "react-native-vector-icons/Ionicons";
+import axios from "axios";
 
 const CollapsedMeal = ({ meal }) => {
   const navigator = useNavigation();
@@ -12,12 +12,41 @@ const CollapsedMeal = ({ meal }) => {
     navigator.navigate("Details", { id: meal.id });
   };
 
-  const mealsCtx = useContext(MealsContext);
-
   const [isModalVisible, setModalVisible] = useState(false);
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
+  };
+
+  const addMealHandler = (category) => {
+    axios
+      .get(
+        `https://calorietrackerapi-d5wlvjoica-rj.a.run.app/search/details/${meal.id}`
+      )
+      .then((response) => {
+        const mealDetails = response.data;
+
+        const newMeal = {
+          id: mealDetails.id,
+          name: mealDetails.name,
+          imageUrl: mealDetails.image,
+          amount: mealDetails.amount,
+          calories: mealDetails.nutrition.nutrients[36].amount,
+          protein: mealDetails.nutrition.nutrients[31].amount,
+          carbs: mealDetails.nutrition.nutrients[30].amount,
+          fat: mealDetails.nutrition.nutrients[12].amount,
+          percentProtein: mealDetails.nutrition.caloricBreakdown.percentProtein,
+          percentCarbs: mealDetails.nutrition.caloricBreakdown.percentCarbs,
+          percentFat: mealDetails.nutrition.caloricBreakdown.percentFat,
+          category: category,
+        };
+
+        return axios.post(
+          "https://calorietrackerapi-d5wlvjoica-rj.a.run.app/meals/add",
+          { ...newMeal }
+        );
+      })
+      .catch((err) => console.log(err));
   };
 
   return (
@@ -60,7 +89,7 @@ const CollapsedMeal = ({ meal }) => {
               <Pressable
                 android_ripple={{ color: "#ccc" }}
                 onPress={() => {
-                  mealsCtx.addMeal(meal, "Breakfast");
+                  addMealHandler("Breakfast");
                   toggleModal();
                 }}
               >
@@ -73,7 +102,7 @@ const CollapsedMeal = ({ meal }) => {
               <Pressable
                 android_ripple={{ color: "#ccc" }}
                 onPress={() => {
-                  mealsCtx.addMeal(meal, "Lunch");
+                  addMealHandler("Lunch");
                   toggleModal();
                 }}
               >
@@ -86,7 +115,7 @@ const CollapsedMeal = ({ meal }) => {
               <Pressable
                 android_ripple={{ color: "#ccc" }}
                 onPress={() => {
-                  mealsCtx.addMeal(meal, "Dinner");
+                  addMealHandler("Dinner");
                   toggleModal();
                 }}
               >

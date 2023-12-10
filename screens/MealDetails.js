@@ -9,7 +9,7 @@ import Bar from "../components/Bar";
 const MealDetails = ({ navigation, route }) => {
   const [meal, setMeal] = useState({});
   const [loading, setLoading] = useState(true);
-  const [favorite, setFavorite] = useState(false);
+  const [favorite, setFavorite] = useState();
 
   const onPressHandler = () => {
     if (favorite) {
@@ -18,6 +18,55 @@ const MealDetails = ({ navigation, route }) => {
       setFavorite(true);
     }
   };
+
+  useEffect(() => {
+    axios
+      .get(
+        `https://calorietrackerapi-d5wlvjoica-rj.a.run.app/search/details/${route.params.id}`
+      )
+      .then((response) => {
+        setMeal(response.data);
+
+        navigation.setOptions({
+          headerTitle:
+            response.data.name.charAt(0).toUpperCase() +
+            response.data.name.slice(1),
+        });
+
+        return axios.get(
+          `https://calorietrackerapi-d5wlvjoica-rj.a.run.app/favorites/${route.params.id}`
+        );
+      })
+      .then((response) => {
+        if (response.data.isFavorite) {
+          setFavorite(true);
+
+          navigation.setOptions({
+            headerRight: () => (
+              <Ionicons
+                name={"heart"}
+                color={"#ff715e"}
+                size={28}
+                onPress={onPressHandler}
+              />
+            ),
+          });
+        } else {
+          navigation.setOptions({
+            headerRight: () => (
+              <Ionicons
+                name={"heart-outline"}
+                color={"#ff715e"}
+                size={28}
+                onPress={onPressHandler}
+              />
+            ),
+          });
+        }
+      })
+      .catch((err) => console.log(err))
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
     navigation.setOptions({
@@ -30,54 +79,23 @@ const MealDetails = ({ navigation, route }) => {
         />
       ),
     });
-  }, [favorite]);
 
-  useEffect(() => {
     if (favorite) {
       axios
         .post(
-          `http://192.168.0.12:3000/favorites/add/${meal.id}/${meal.name}`
+          `https://calorietrackerapi-d5wlvjoica-rj.a.run.app/favorites/add/`,
+          { id: meal.id, name: meal.name }
         )
         .catch((err) => console.log(err));
     } else {
       axios
-        .post(`http://192.168.0.12:3000/favorites/delete`, { id: meal.id })
+        .post(
+          `https://calorietrackerapi-d5wlvjoica-rj.a.run.app/favorites/delete`,
+          { id: meal.id }
+        )
         .catch((err) => console.log(err));
     }
-  }, [favorite, meal]);
-
-  useEffect(() => {
-    axios
-      .get(`http://192.168.0.12:3000/favorites/${route.params.id}`)
-      .then((response) => {
-        if (response.data.isFavorite) {
-          setFavorite(true);
-        }
-
-        return axios.get(
-          `http://192.168.0.12:3000/search/details/${route.params.id}`
-        );
-      })
-      .then((response) => {
-        setMeal(response.data);
-
-        navigation.setOptions({
-          headerTitle:
-            response.data.name.charAt(0).toUpperCase() +
-            response.data.name.slice(1),
-          headerRight: () => (
-            <Ionicons
-              name={favorite ? "heart" : "heart-outline"}
-              color={"#ff715e"}
-              size={28}
-              onPress={onPressHandler}
-            />
-          ),
-        });
-      })
-      .catch((err) => console.log(err))
-      .finally(() => setLoading(false));
-  }, []);
+  }, [favorite]);
 
   if (loading) {
     return (
@@ -105,7 +123,7 @@ const MealDetails = ({ navigation, route }) => {
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.subtitle}>Nutritional value</Text>
-            <Text style={styles.subtitle}>{meal.calories} kcal</Text>
+            <Text style={styles.subtitle}>{meal.nutrition.nutrients[36].amount} kcal</Text>
           </View>
           <View
             style={[styles.textContainer, { marginTop: 20, marginBottom: 10 }]}

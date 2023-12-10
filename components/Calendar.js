@@ -1,5 +1,6 @@
+import { DateContext } from "../context/store/date-context";
 import { FlatList, View } from "react-native";
-import { useState, useRef, useEffect } from "react";
+import { useContext, useState, useRef, useEffect } from "react";
 
 import Day from "./Day";
 
@@ -22,7 +23,13 @@ const Calendar = () => {
       index: dayOfMonth - 1,
       animated: true,
     });
-  }, [dayOfMonth]);
+  }, []);
+
+  const dateCtx = useContext(DateContext);
+
+  useEffect(() => {
+    dateCtx.switchDate(activeDay);
+  }, [activeDay])
 
   const days = [];
 

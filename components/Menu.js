@@ -1,10 +1,13 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useState } from "react";
+import { useState, useContext } from "react";
 
 import Meal from "./Meal";
 import CollapsedMeal from "./CollapsedMeal";
+import { DateContext } from "../context/store/date-context";
 
 const Menu = ({ options, meals, onSelect, collapsed }) => {
+  const dateCtx = useContext(DateContext);
+
   const [selected, setSelected] = useState(options[0]);
 
   const optionSelected = (option) => {
@@ -17,7 +20,18 @@ const Menu = ({ options, meals, onSelect, collapsed }) => {
 
   let key = 1;
 
-  const filteredData = meals.filter((item) => item.category === selected);
+  let filteredData = [];
+
+  if (!collapsed) {
+    filteredData = meals.filter(
+      (item) =>
+        item.category === selected &&
+        item.day == dateCtx.day &&
+        item.month == dateCtx.month
+    );
+  } else {
+    filteredData = meals.filter((item) => item.category === selected);
+  }
 
   return (
     <>

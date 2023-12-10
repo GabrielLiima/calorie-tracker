@@ -7,12 +7,15 @@ import Bar from "./Bar";
 const Meal = ({
   id,
   imageUrl,
-  title,
+  name,
   calories,
   amount,
   protein,
   carbs,
   fat,
+  percentProtein,
+  percentCarbs,
+  percentFat,
 }) => {
   const navigator = useNavigation();
 
@@ -23,10 +26,15 @@ const Meal = ({
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
-        <Image source={{ uri: imageUrl }} style={styles.image} />
+        <Image
+          source={{
+            uri: `https://spoonacular.com/cdn/ingredients_500x500/${imageUrl}`,
+          }}
+          style={styles.image}
+        />
         <View>
           <Text style={styles.title} numberOfLines={2}>
-            {title}
+            {name.charAt(0).toUpperCase() + name.slice(1)}
           </Text>
           <Text style={styles.details}>
             <Ionicons name="flame" color="red" size={15} />
@@ -45,20 +53,20 @@ const Meal = ({
       </View>
       <View style={styles.contents}>
         <Bar
-          percentage={`${(protein / amount) * 100}%`}
-          title={`${protein}g`}
+          title={protein ? `${protein}g` : "-"}
+          percentage={`${percentProtein}%`}
           details={"Protein"}
           color={"#63BA6A"}
         />
         <Bar
-          percentage={`${(carbs / amount) * 100}%`}
-          title={`${carbs}g`}
+          title={carbs ? `${carbs}g` : "-"}
+          percentage={`${percentCarbs}%`}
           details={"Carbs"}
           color={"#F7C442"}
         />
         <Bar
-          percentage={`${(fat / amount) * 100}%`}
-          title={`${fat}g`}
+          title={fat ? `${fat}g` : "-"}
+          percentage={`${percentFat}%`}
           details={"Fat"}
           color={"#A79EDE"}
         />
