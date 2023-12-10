@@ -36,26 +36,26 @@ const MealDetails = ({ navigation, route }) => {
     if (favorite) {
       axios
         .post(
-          `http://192.168.173.114:3000/favorites/add/${meal.id}/${meal.name}`
+          `http://192.168.0.12:3000/favorites/add/${meal.id}/${meal.name}`
         )
         .catch((err) => console.log(err));
     } else {
       axios
-        .post(`http://192.168.173.114:3000/favorites/delete`, { id: meal.id })
+        .post(`http://192.168.0.12:3000/favorites/delete`, { id: meal.id })
         .catch((err) => console.log(err));
     }
   }, [favorite, meal]);
 
   useEffect(() => {
     axios
-      .get(`http://192.168.173.114:3000/favorites/${route.params.id}`)
+      .get(`http://192.168.0.12:3000/favorites/${route.params.id}`)
       .then((response) => {
         if (response.data.isFavorite) {
           setFavorite(true);
         }
 
         return axios.get(
-          `http://192.168.173.114:3000/search/details/${route.params.id}`
+          `http://192.168.0.12:3000/search/details/${route.params.id}`
         );
       })
       .then((response) => {

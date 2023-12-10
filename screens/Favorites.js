@@ -13,7 +13,7 @@ const Favorites = () => {
   useFocusEffect(
     React.useCallback(() => {
       axios
-        .get("http://192.168.173.114:3000/favorites")
+        .get("http://192.168.0.12:3000/favorites")
         .then((response) => {
           setData(response.data.items);
         })

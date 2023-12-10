@@ -16,7 +16,7 @@ const Search = () => {
 
   const fetchData = (query) => {
     axios
-      .get(`http://192.168.173.114:3000/search/${query}`)
+      .get(`http://192.168.0.12:3000/search/${query}`)
       .then((response) => {
         const data = response.data.results.map((result) => {
           return { ...result, category: "Foods" };
