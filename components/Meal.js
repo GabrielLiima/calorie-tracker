@@ -13,6 +13,7 @@ const Meal = ({
   protein,
   carbs,
   fat,
+  type,
   percentProtein,
   percentCarbs,
   percentFat,
@@ -20,7 +21,24 @@ const Meal = ({
   const navigator = useNavigation();
 
   const onPressHandler = () => {
-    navigator.navigate("Details", { id: id });
+    navigator.navigate("Details", {
+      id: id,
+      type: type,
+      meal: {
+        id: id,
+        imageUrl: imageUrl,
+        name: name,
+        calories: calories,
+        amount: amount,
+        protein: protein,
+        carbs: carbs,
+        fat: fat,
+        type: type,
+        percentProtein: percentProtein,
+        percentCarbs: percentCarbs,
+        percentFat: percentFat,
+      },
+    });
   };
 
   return (
@@ -28,7 +46,10 @@ const Meal = ({
       <View style={styles.innerContainer}>
         <Image
           source={{
-            uri: `https://spoonacular.com/cdn/ingredients_500x500/${imageUrl}`,
+            uri:
+              type == "Foods"
+                ? `https://spoonacular.com/cdn/ingredients_500x500/${imageUrl}`
+                : imageUrl,
           }}
           style={styles.image}
         />

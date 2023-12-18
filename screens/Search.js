@@ -9,28 +9,46 @@ import Menu from "../components/Menu";
 const Search = () => {
   const [data, setData] = useState([]);
   const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState("Foods");
+  const [text, setText] = useState("Search for Foods...");
 
   const inputHandler = (input) => {
     setQuery(input);
   };
 
   const fetchData = (query) => {
-    axios
-      .get(`https://calorietrackerapi-d5wlvjoica-rj.a.run.app/search/${query}`)
-      .then((response) => {
-        const data = response.data.results.map((result) => {
-          return { ...result, category: "Foods" };
-        });
+    if (selected == "Foods") {
+      axios
+        .get(
+          `https://calorietrackerapi-d5wlvjoica-rj.a.run.app/search/${query}`
+        )
+        .then((response) => {
+          const data = response.data.results.map((result) => {
+            return { ...result, type: "Foods" };
+          });
 
-        setData(data);
-      })
-      .catch((err) => console.log(err));
+          setData(data);
+        })
+        .catch((err) => console.log(err));
+    } else {
+      axios
+        .get(
+          `https://calorietrackerapi-d5wlvjoica-rj.a.run.app/search/recipe/${query}`
+        )
+        .then((response) => {
+          const data = response.data.results.map((result) => {
+            return { ...result, name: result.title, type: "Recipes" };
+          });
+
+          setData(data);
+        })
+        .catch((err) => console.log(err));
+    }
   };
-
-  const [text, setText] = useState("Search for Recipes...");
 
   const onSelect = (selected) => {
     setText(`Search for ${selected}...`);
+    setSelected(selected);
   };
 
   return (

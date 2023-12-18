@@ -30,7 +30,7 @@ const Menu = ({ options, meals, onSelect, collapsed }) => {
         item.month == dateCtx.month
     );
   } else {
-    filteredData = meals.filter((item) => item.category === selected);
+    filteredData = meals.filter((item) => item.type === selected);
   }
 
   return (

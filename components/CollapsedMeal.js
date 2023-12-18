@@ -9,7 +9,11 @@ const CollapsedMeal = ({ meal }) => {
   const navigator = useNavigation();
 
   const onPressHandler = () => {
-    navigator.navigate("Details", { id: meal.id });
+    navigator.navigate("Details", {
+      id: meal.id,
+      type: meal.type,
+      meal: meal,
+    });
   };
 
   const [isModalVisible, setModalVisible] = useState(false);
@@ -19,34 +23,41 @@ const CollapsedMeal = ({ meal }) => {
   };
 
   const addMealHandler = (category) => {
-    axios
-      .get(
-        `https://calorietrackerapi-d5wlvjoica-rj.a.run.app/search/details/${meal.id}`
-      )
-      .then((response) => {
-        const mealDetails = response.data;
+    if (!meal.calories) {
+      let url = "";
 
-        const newMeal = {
-          id: mealDetails.id,
-          name: mealDetails.name,
-          imageUrl: mealDetails.image,
-          amount: mealDetails.amount,
-          calories: mealDetails.nutrition.nutrients[36].amount,
-          protein: mealDetails.nutrition.nutrients[31].amount,
-          carbs: mealDetails.nutrition.nutrients[30].amount,
-          fat: mealDetails.nutrition.nutrients[12].amount,
-          percentProtein: mealDetails.nutrition.caloricBreakdown.percentProtein,
-          percentCarbs: mealDetails.nutrition.caloricBreakdown.percentCarbs,
-          percentFat: mealDetails.nutrition.caloricBreakdown.percentFat,
+      if (meal.type == "Foods") {
+        url = `https://calorietrackerapi-d5wlvjoica-rj.a.run.app/search/details/${meal.id}`;
+      } else if (meal.type == "Recipes") {
+        url = `https://calorietrackerapi-d5wlvjoica-rj.a.run.app/search/recipe/details/${meal.id}`;
+      }
+
+      axios
+        .get(url)
+        .then((response) => {
+          const newMeal = {
+            ...response.data,
+            category: category,
+            type: meal.type,
+          };
+
+          return axios.post(
+            "https://calorietrackerapi-d5wlvjoica-rj.a.run.app/meals/add",
+            { ...newMeal }
+          );
+        })
+        .catch((err) => console.log(err));
+    } else {
+      axios
+        .post("https://calorietrackerapi-d5wlvjoica-rj.a.run.app/meals/add", {
+          ...meal,
           category: category,
-        };
-
-        return axios.post(
-          "https://calorietrackerapi-d5wlvjoica-rj.a.run.app/meals/add",
-          { ...newMeal }
-        );
-      })
-      .catch((err) => console.log(err));
+        })
+        .then(() => {
+          return;
+        })
+        .catch((err) => console.log(err));
+    }
   };
 
   return (
